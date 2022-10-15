@@ -10,7 +10,7 @@ defmodule TictactwoWeb.Components.Player do
       <div>
         <div class="flex justify-between">
           <span>
-            <%= show_player_name(@game, @color) %> 
+            <%= show_player_name(@game, @color) %>
           </span>
         </div>
         <Gobbler.list

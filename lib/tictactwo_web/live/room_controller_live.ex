@@ -7,7 +7,10 @@ defmodule TictactwoWeb.RoomControllerLive do
   alias Tictactwo.Games
 
   def mount(params, session, socket) do
-    if connected?(socket), do: send(self(), :after_join)
+    if connected?(socket) do
+      schedule_timer()
+      send(self(), :after_join)
+    end
 
     game_slug = params["game_slug"]
     current_user = session["current_user"]
@@ -23,15 +26,20 @@ defmodule TictactwoWeb.RoomControllerLive do
         current_user: current_user,
         user_type: user_type,
         game: game,
-        spectator_count: 0
+        spectator_count: 0,
+        remaining_time: 60
       )
 
     {:ok, socket}
   end
 
   def terminate(reason, _socket) do
-    # TODO: Handle users leaving the room 
+    # TODO: Handle users leaving the room
     # Close the game once both players leave
+  end
+
+  def schedule_timer do
+    :timer.send_interval(1_000, :tick)
   end
 
   def handle_info(:after_join, socket) do
@@ -128,6 +136,7 @@ defmodule TictactwoWeb.RoomControllerLive do
     socket =
       socket
       |> assign(:game, updated_game)
+      |> assign(:remaining_time, 60)
 
     {:noreply, socket}
   end
@@ -163,7 +172,7 @@ defmodule TictactwoWeb.RoomControllerLive do
     {:noreply, socket}
   end
 
-  # resign-game 
+  # resign-game
   def handle_info(%{event: "resign-game", payload: %{username: username}}, socket) do
     updated_game = Games.resign_game(socket.assigns.game, username)
 
@@ -260,6 +269,18 @@ defmodule TictactwoWeb.RoomControllerLive do
 
   def handle_event("back-to-lobby", _payload, socket) do
     redirect_to_lobby(socket)
+  end
+
+  def handle_info(:tick, socket) do
+    socket = update(socket, :remaining_time, fn remaining_time -> remaining_time - 1 end)
+    if socket.assigns.remaining_time < 0 && !TictactwoWeb.RoomView.game_in_play?(socket.assigns.game) do
+      TictactwoWeb.Endpoint.broadcast(topic(socket), "resign-game", %{
+          username: socket.assigns.current_user.username
+        }
+      )
+    end
+
+    {:noreply, socket}
   end
 
   # ----------------------------------------------------------------------

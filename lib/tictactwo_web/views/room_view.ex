@@ -11,21 +11,21 @@ defmodule TictactwoWeb.RoomView do
   alias TictactwoWeb.Components.Controls
   alias TictactwoWeb.Components.View
 
-  @spec my_turn?(game :: game(), user_type :: viewer_type()) :: boolean()
-  def my_turn?(_, :spectator), do: false
+  @spec my_turn?(game :: game(), user_type :: viewer_type(), remaining_time :: integer) :: boolean()
+  def my_turn?(_, :spectator, _), do: false
 
-  def my_turn?(game, user_type) do
-    game.player_turn == user_type
+  def my_turn?(game, user_type, remaining_time \\ 30) do
+    game.player_turn == user_type && remaining_time > 0
   end
 
   @spec game_not_ended?(game :: game()) :: boolean()
-  def game_not_ended?(game) do 
+  def game_not_ended?(game) do
     game_ready?(game) || game_in_play?(game)
   end
 
   @spec game_ended?(game :: game()) :: boolean()
-  def game_ended?(game) do 
-    not game_not_ended?(game) 
+  def game_ended?(game) do
+    not game_not_ended?(game)
   end
 
   @spec game_in_play?(game :: game()) :: boolean()

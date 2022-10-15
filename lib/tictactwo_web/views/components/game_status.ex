@@ -10,7 +10,8 @@ defmodule TictactwoWeb.Components.GameStatus do
           <%= if game_not_ended?(@game) do %>
             <%= if my_turn?(@game, @current_user) do %>
               <p>Your turn</p>
-            <% else %> 
+              <p>Time left: <%= assigns.remaining_time %>s</p>
+            <% else %>
               <p>Waiting for opponent</p>
             <% end %>
           <% else %>

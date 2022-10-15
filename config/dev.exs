@@ -2,8 +2,8 @@ import Config
 
 # Configure your database
 config :tictactwo, Tictactwo.Repo,
-  username: "postgres",
-  password: "postgres",
+  username: "teamshop",
+  password: "teamshop",
   hostname: "localhost",
   database: "tictactwo_dev",
   stacktrace: true,
